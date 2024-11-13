@@ -247,7 +247,11 @@ class TextMessageText extends StatelessWidget {
         ],
         maxLines: maxLines,
         overflow: overflow,
-        regexOptions: const RegexOptions(multiLine: true, dotAll: true),
+        regexOptions: const RegexOptions(
+          multiLine: true,
+          dotAll: true,
+          unicode: true,
+        ),
         selectable: options.isTextSelectable,
         style: bodyTextStyle,
         text: text,
