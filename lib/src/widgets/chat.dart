@@ -104,6 +104,7 @@ class Chat extends StatefulWidget {
     this.slidableMessageBuilder,
     this.isLeftStatus = false,
     this.messageWidthRatio = 0.72,
+    this.onChatTap,
   });
 
   /// See [Message.audioMessageBuilder].
@@ -239,6 +240,9 @@ class Chat extends StatefulWidget {
 
   /// Called when user taps on background.
   final VoidCallback? onBackgroundTap;
+
+  /// Called when user taps on chat (anywhere).
+  final VoidCallback? onChatTap;
 
   /// See [ChatList.onEndReached].
   final Future<void> Function()? onEndReached;
@@ -631,46 +635,55 @@ class ChatState extends State<Chat> {
                   child: Column(
                     children: [
                       Flexible(
-                        child: widget.messages.isEmpty
-                            ? SizedBox.expand(
-                                child: _emptyStateBuilder(),
-                              )
-                            : GestureDetector(
-                                onTap: () {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  widget.onBackgroundTap?.call();
-                                },
-                                child: LayoutBuilder(
-                                  builder: (
-                                    BuildContext context,
-                                    BoxConstraints constraints,
-                                  ) =>
-                                      ChatList(
-                                    bottomWidget: widget.listBottomWidget,
-                                    bubbleRtlAlignment:
-                                        widget.bubbleRtlAlignment!,
-                                    isLastPage: widget.isLastPage,
-                                    itemBuilder: (Object item, int? index) =>
-                                        _messageBuilder(
-                                      item,
-                                      constraints,
-                                      index,
+                        child: GestureDetector(
+                          onTap: () {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            widget.onChatTap?.call();
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: widget.messages.isEmpty
+                              ? SizedBox.expand(
+                                  child: _emptyStateBuilder(),
+                                )
+                              : GestureDetector(
+                                  onTap: () {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                    widget.onBackgroundTap?.call();
+                                  },
+                                  child: LayoutBuilder(
+                                    builder: (
+                                      BuildContext context,
+                                      BoxConstraints constraints,
+                                    ) =>
+                                        ChatList(
+                                      bottomWidget: widget.listBottomWidget,
+                                      bubbleRtlAlignment:
+                                          widget.bubbleRtlAlignment!,
+                                      isLastPage: widget.isLastPage,
+                                      itemBuilder: (Object item, int? index) =>
+                                          _messageBuilder(
+                                        item,
+                                        constraints,
+                                        index,
+                                      ),
+                                      items: _chatMessages,
+                                      keyboardDismissBehavior:
+                                          widget.keyboardDismissBehavior,
+                                      onEndReached: widget.onEndReached,
+                                      onEndReachedThreshold:
+                                          widget.onEndReachedThreshold,
+                                      scrollController: _scrollController,
+                                      scrollPhysics: widget.scrollPhysics,
+                                      typingIndicatorOptions:
+                                          widget.typingIndicatorOptions,
+                                      useTopSafeAreaInset:
+                                          widget.useTopSafeAreaInset ??
+                                              isMobile,
                                     ),
-                                    items: _chatMessages,
-                                    keyboardDismissBehavior:
-                                        widget.keyboardDismissBehavior,
-                                    onEndReached: widget.onEndReached,
-                                    onEndReachedThreshold:
-                                        widget.onEndReachedThreshold,
-                                    scrollController: _scrollController,
-                                    scrollPhysics: widget.scrollPhysics,
-                                    typingIndicatorOptions:
-                                        widget.typingIndicatorOptions,
-                                    useTopSafeAreaInset:
-                                        widget.useTopSafeAreaInset ?? isMobile,
                                   ),
                                 ),
-                              ),
+                        ),
                       ),
                       widget.customBottomWidget ??
                           Input(
